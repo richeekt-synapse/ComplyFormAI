@@ -1,41 +1,244 @@
-# 🏗️ Subcontractor Bidding System Schema
+# 🏗️ ComplyFormAI – FastAPI Backend
 
-This repository outlines a minimal **SQL schema** designed to manage **organizations**, **subcontractors**, their **certifications**, the **bids** they participate in, and the associated **validation results**.
-
-It serves as a foundational structure for a system that tracks subcontractors' involvement in various bids, including necessary compliance checks.
+A compliance management API for validating MBE participation in construction bids.
 
 ---
 
-## 🛠️ Schema Overview
+## 🚀 Installation & Setup Guide
 
-The database is composed of the following tables:
+### 1️⃣ Clone the Repository
 
-| Table Name | Description | Key Fields | Notes |
-| :--- | :--- | :--- | :--- |
-| **`organizations`** | Primary entities (e.g., general contractors or clients). | `organization_id`, `name` | Minimal information for organizational identity. |
-| **`subcontractors`** | The companies submitting bids and performing work. | `subcontractor_id`, `name`, `certification_number`, `naics_code` | Includes basic identification and key compliance data. |
-| **`certifications`** | A catalog of available compliance or industry certifications. | `certification_id`, `name`, `description` | Standard list of certifications. |
-| **`bids`** | Records for each project or contracting opportunity. | `bid_id`, `name`, `date_submitted`, `organization_id` (FK) | Basic information about the bid itself. |
-| **`bid_subcontractors`** | **Junction Table** linking which subcontractors are involved in which bids. | `bid_subcontractor_id`, `bid_id` (FK), `subcontractor_id` (FK) | Establishes a many-to-many relationship. |
-| **`validation_results`** | Stores the outcome of compliance/eligibility checks. | `validation_id`, `bid_subcontractor_id` (FK), `status`, `notes` | Tracks if a subcontractor is valid for a specific bid. |
+Open your terminal (or VS Code terminal) and run:
 
----
+```bash
+git clone https://github.com/veer-kat/ComplyFormAI.git
+cd ComplyFormAI
+```
 
-## 🚀 Setup Status
+### 2️⃣ Set Up PostgreSQL Database
 
-The repository currently includes the following foundational data and structure:
+1. Open pgAdmin.
 
-1.  **Minimal Schema:** The tables listed above have been created with basic field definitions and primary/foreign keys.
-2.  **NAICS Data:** A set of sample **NAICS codes** (North American Industry Classification System) has been loaded to support the `subcontractors` table.
-3.  **Seed Data:** **3 to 5 sample subcontractors** have been created to populate the database and allow for initial testing and querying.
+2. Create a new database named: ComplyFormAI
 
----
+Inside the repo, you’ll find SQL files.
 
-## 💡 Next Steps
+Run them in the following order in pgAdmin query tool:
+-- Step 1
+minimal_schema.sql;
 
-To build upon this foundation, consider the following development tasks:
+-- Step 2
+load_naics.sql;
 
-* **Detailed Field Definitions:** Expand the tables with required fields (e.g., addresses, contact info, bid amounts).
-* **Relationship Constraints:** Implement robust **foreign key constraints** and indexing for performance.
-* **API/Application Layer:** Build an application (e.g., Python, Node.js) to interact with this database.
-* **Comprehensive Seed Data:** Create a larger set of realistic dummy data for robust testing.
+-- Step 3
+seed_data.sql;
+
+### 3️⃣ Create .env File
+
+Inside the root folder of your FastAPI project, create a .env file and add:
+
+`DATABASE_URL=postgresql://postgres:password@localhost:5432/ComplyFormAI
+DEBUG=True`
+
+### 4️⃣ Set Up Virtual Environment
+
+Use Python 3.12 (recommended) for smooth installation.
+
+`python -m venv venv`
+
+Activate it:
+
+Terminal:
+`.\venv\Scripts\activate`
+
+### 5️⃣ Install Dependencies
+
+`pip install -r requirements.txt`
+
+### 6️⃣ Test Database Connection
+
+Run the connection test script:
+
+`python test_connection.py`
+
+### 7️⃣ Run the FastAPI Server
+
+`python run.py`
+
+## 🧪 API Testing (Postman)
+
+Below are the available endpoints with example requests.
+
+✅ Health Check
+`GET http://localhost:8000/health
+`
+
+### 2️⃣ Organizations Endpoints
+
+#### ➕ Create Organization
+
+`POST http://localhost:8000/api/v1/organizations/
+Content-Type: application/json
+
+{
+  "name": "ABC Construction Company"
+}
+`
+
+Save the id as {{org_id}}
+
+#### 📋 List All Organizations
+
+`GET http://localhost:8000/api/v1/organizations/
+`
+
+#### 🔍 Get Organization by ID
+
+`GET http://localhost:8000/api/v1/organizations/{{org_id}}
+`
+
+### 3️⃣ Subcontractors Endpoints
+
+#### ➕ Create Subcontractor (MBE)
+
+`POST http://localhost:8000/api/v1/subcontractors/
+Content-Type: application/json
+
+{
+  "organization_id": "{{org_id}}",
+  "legal_name": "Elite Steel Fabricators Inc.",
+  "certification_number": "MBE-2024-001",
+  "is_mbe": true
+}
+`
+
+Save the id as {{subcontractor_1_id}}
+
+#### 📋 List All Subcontractors
+
+`GET http://localhost:8000/api/v1/subcontractors/
+`
+
+#### 🔎 Search Subcontractors (by name)
+
+`GET http://localhost:8000/api/v1/subcontractors/search?q=Steel
+`
+
+#### 🔎 Search MBE Subcontractors Only
+
+`GET http://localhost:8000/api/v1/subcontractors/search?is_mbe=true
+`
+
+#### 🔍 Get Subcontractor by ID
+
+`GET http://localhost:8000/api/v1/subcontractors/{{subcontractor_1_id}}
+`
+
+#### ✏️ Update Subcontractor
+
+`PUT http://localhost:8000/api/v1/subcontractors/{{subcontractor_1_id}}
+Content-Type: application/json
+
+{
+  "legal_name": "Elite Steel Fabricators Inc. (Updated)",
+  "certification_number": "MBE-2024-001-RENEWED"
+}
+`
+
+#### ❌ Delete Subcontractor
+
+`DELETE http://localhost:8000/api/v1/subcontractors/{{subcontractor_3_id}}
+`
+
+### 4️⃣ Bids Endpoints
+
+#### ➕ Create Bid
+
+`POST http://localhost:8000/api/v1/bids/
+Content-Type: application/json
+
+{
+  "organization_id": "{{org_id}}",
+  "solicitation_number": "DOT-2025-12345",
+  "total_amount": 1000000.00,
+  "mbe_goal": 25.00
+}
+`
+
+Save the id as {{bid_id}}
+
+#### 📋 List All Bids
+
+`GET http://localhost:8000/api/v1/bids/
+`
+
+#### 🔍 Get Bid by ID (with details)
+
+`GET http://localhost:8000/api/v1/bids/{{bid_id}}
+`
+
+### 5️⃣ Bid Subcontractors
+
+#### ➕ Add Subcontractor to Bid
+
+`POST http://localhost:8000/api/v1/bids/{{bid_id}}/subcontractors
+Content-Type: application/json
+
+{
+  "subcontractor_id": "{{subcontractor_1_id}}",
+  "work_description": "Steel fabrication and structural framework",
+  "naics_code": "236220",
+  "subcontract_value": 200000.00,
+  "counts_toward_mbe": true
+}
+`
+
+Save the id as {{bid_sub_1_id}}
+
+#### ❌ Remove Subcontractor from Bid
+
+`DELETE http://localhost:8000/api/v1/bids/{{bid_id}}/subcontractors/{{bid_sub_2_id}}
+`
+
+### 6️⃣ Validation Endpoints
+
+#### ✅ Validate Bid (Check MBE %)
+
+`GET http://localhost:8000/api/v1/bids/{{bid_id}}/validate
+`
+
+### 7️⃣ Test Scenario: MBE Goal Not Met
+
+Add additional MBE subcontractor:
+
+`POST http://localhost:8000/api/v1/bids/{{bid_id}}/subcontractors
+Content-Type: application/json
+
+{
+  "subcontractor_id": "{{subcontractor_2_id}}",
+  "work_description": "Additional MBE work to meet goal",
+  "naics_code": "561730",
+  "subcontract_value": 50000.00,
+  "counts_toward_mbe": true
+}
+`
+
+Then re-validate:
+
+`GET http://localhost:8000/api/v1/bids/{{bid_id}}/validate
+`
+
+### 8️⃣ Error Testing
+
+#### ❗ 404 - Bid Not Found
+
+`GET http://localhost:8000/api/v1/bids/00000000-0000-0000-0000-000000000000
+`
+
+## 🧰 Tech Stack
+
+Backend: FastAPI
+Database: PostgreSQL
+ORM: SQLAlchemy
+Environment: Python 3.12
+Testing: Postman
