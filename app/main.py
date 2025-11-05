@@ -10,13 +10,14 @@ from app.routes import (
     directory_router,
     opportunities_router,
     assessments_router,
-    outreach_router
+    outreach_router,
+    compliance_rules_router
 )
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     debug=settings.DEBUG,
-    description="ComplyFormAI Enhanced Backend - Compliance-First Platform"
+    description="ComplyFormAI Enhanced Backend - Compliance-First Platform with Jurisdiction-Specific Rules"
 )
 
 # CORS middleware
@@ -34,12 +35,13 @@ def health_check():
     return {
         "status": "healthy",
         "service": settings.PROJECT_NAME,
-        "version": "2.0 - Enhanced Edition"
+        "version": "2.0 - Enhanced Edition with Dynamic Compliance Rules"
     }
 
 # Include routers
 app.include_router(organizations_router, prefix=settings.API_V1_PREFIX)
 app.include_router(jurisdictions_router, prefix=settings.API_V1_PREFIX)
+app.include_router(compliance_rules_router, prefix=settings.API_V1_PREFIX)
 app.include_router(bids_router, prefix=settings.API_V1_PREFIX)
 app.include_router(subcontractors_router, prefix=settings.API_V1_PREFIX)
 app.include_router(directory_router, prefix=settings.API_V1_PREFIX)
@@ -54,6 +56,7 @@ def root():
         "version": "2.0",
         "features": [
             "Cross-form validation",
+            "Dynamic jurisdiction-specific compliance rules",
             "Pre-bid assessment",
             "Multi-jurisdiction support",
             "Subcontractor directory & matching",

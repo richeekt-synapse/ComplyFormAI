@@ -6,6 +6,7 @@ from app.routes.directory import router as directory_router
 from app.routes.opportunities import router as opportunities_router
 from app.routes.assessments import router as assessments_router
 from app.routes.outreach import router as outreach_router
+from app.routes.compliance_rules import router as compliance_rules_router
 
 __all__ = [
     "bids_router",
@@ -15,5 +16,6 @@ __all__ = [
     "directory_router",
     "opportunities_router",
     "assessments_router",
-    "outreach_router"
+    "outreach_router",
+    "compliance_rules_router"
 ]
