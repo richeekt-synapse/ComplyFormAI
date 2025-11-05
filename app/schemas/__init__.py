@@ -12,6 +12,31 @@ from app.schemas.bid import (
     BidSubcontractor
 )
 from app.schemas.validation import ValidationResult, ValidationResponse
+from app.schemas.jurisdiction import Jurisdiction, JurisdictionCreate
+from app.schemas.subcontractor_directory import (
+    SubcontractorDirectory,
+    SubcontractorDirectoryCreate,
+    SubcontractorDirectoryUpdate,
+    SubcontractorSearchFilters
+)
+from app.schemas.opportunity import (
+    Opportunity,
+    OpportunityCreate,
+    OpportunityDetail,
+    OpportunitySearchFilters
+)
+from app.schemas.pre_bid_assessment import (
+    PreBidAssessment,
+    PreBidAssessmentCreate,
+    PreBidAssessmentDetail,
+    AssessmentRequest
+)
+from app.schemas.subcontractor_outreach import (
+    SubcontractorOutreach,
+    SubcontractorOutreachCreate,
+    SubcontractorOutreachUpdate,
+    SubcontractorOutreachDetail
+)
 
 __all__ = [
     "Organization",
@@ -25,5 +50,23 @@ __all__ = [
     "BidSubcontractorCreate",
     "BidSubcontractor",
     "ValidationResult",
-    "ValidationResponse"
+    "ValidationResponse",
+    "Jurisdiction",
+    "JurisdictionCreate",
+    "SubcontractorDirectory",
+    "SubcontractorDirectoryCreate",
+    "SubcontractorDirectoryUpdate",
+    "SubcontractorSearchFilters",
+    "Opportunity",
+    "OpportunityCreate",
+    "OpportunityDetail",
+    "OpportunitySearchFilters",
+    "PreBidAssessment",
+    "PreBidAssessmentCreate",
+    "PreBidAssessmentDetail",
+    "AssessmentRequest",
+    "SubcontractorOutreach",
+    "SubcontractorOutreachCreate",
+    "SubcontractorOutreachUpdate",
+    "SubcontractorOutreachDetail"
 ]
