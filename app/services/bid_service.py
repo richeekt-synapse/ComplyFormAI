@@ -26,7 +26,9 @@ class BidService:
     
     def get_all_bids(self, organization_id: Optional[UUID] = None) -> List[Bid]:
         """Get all bids, optionally filtered by organization"""
-        query = self.db.query(Bid)
+        query = self.db.query(Bid).options(
+            joinedload(Bid.bid_subcontractors).joinedload(BidSubcontractor.subcontractor)
+        )
         
         if organization_id:
             query = query.filter(Bid.organization_id == organization_id)

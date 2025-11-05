@@ -22,7 +22,7 @@ def create_bid(bid: BidCreate, db: Session = Depends(get_db)):
     service = BidService(db)
     return service.create_bid(bid)
 
-@router.get("/", response_model=List[Bid])
+@router.get("/", response_model=List[BidDetail])
 def list_bids(
     organization_id: Optional[UUID] = None,
     db: Session = Depends(get_db)
