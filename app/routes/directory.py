@@ -143,17 +143,17 @@ def find_matching_subcontractors(
     Find subcontractors matching an opportunity's requirements
     """
     from app.services import OpportunityService
-    
+
     # Get the opportunity
     opp_service = OpportunityService(db)
     opportunity = opp_service.get_opportunity(opportunity_id)
-    
+
     if not opportunity:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Opportunity {opportunity_id} not found"
         )
-    
+
     # Find matching subcontractors
     service = SubcontractorDirectoryService(db)
     return service.get_matching_subcontractors(
@@ -163,3 +163,39 @@ def find_matching_subcontractors(
         is_vsbe=is_vsbe or False,
         min_rating=min_rating
     )
+
+@router.post("/{subcontractor_id}/update-usage-count", response_model=SubcontractorDirectory)
+def update_usage_count(
+    subcontractor_id: UUID,
+    db: Session = Depends(get_db)
+):
+    """
+    Update the contractor usage count for a specific subcontractor.
+    This calculates how many unique contractors have engaged with this subcontractor.
+    """
+    service = SubcontractorDirectoryService(db)
+    subcontractor = service.update_contractor_usage_count(subcontractor_id)
+
+    if not subcontractor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Subcontractor {subcontractor_id} not found"
+        )
+
+    return subcontractor
+
+@router.post("/update-all-usage-counts")
+def update_all_usage_counts(
+    db: Session = Depends(get_db)
+):
+    """
+    Update contractor usage counts for all subcontractors in the directory.
+    This is useful for batch updates or after importing data.
+    """
+    service = SubcontractorDirectoryService(db)
+    updated_count = service.update_all_contractor_usage_counts()
+
+    return {
+        "message": "Successfully updated contractor usage counts",
+        "updated_count": updated_count
+    }

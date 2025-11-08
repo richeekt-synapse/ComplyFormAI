@@ -14,7 +14,7 @@ class SubcontractorOutreachService:
         self.db = db
     
     def create_outreach(
-        self, 
+        self,
         outreach_data: SubcontractorOutreachCreate
     ) -> SubcontractorOutreach:
         """Create a new outreach record"""
@@ -22,7 +22,29 @@ class SubcontractorOutreachService:
         self.db.add(outreach)
         self.db.commit()
         self.db.refresh(outreach)
+
+        # Auto-update contractor usage count for network effects
+        self._update_subcontractor_usage_count(outreach.subcontractor_id)
+
         return outreach
+
+    def _update_subcontractor_usage_count(self, subcontractor_id: UUID) -> None:
+        """Update the contractor usage count for a subcontractor after outreach changes"""
+        from sqlalchemy import func
+
+        # Calculate unique contractor count
+        count = self.db.query(func.count(func.distinct(SubcontractorOutreach.organization_id)))\
+            .filter(SubcontractorOutreach.subcontractor_id == subcontractor_id)\
+            .scalar()
+
+        # Update the subcontractor directory entry
+        subcontractor = self.db.query(SubcontractorDirectory)\
+            .filter(SubcontractorDirectory.id == subcontractor_id)\
+            .first()
+
+        if subcontractor:
+            subcontractor.contractors_using_count = count or 0
+            self.db.commit()
     
     def get_outreach(self, outreach_id: UUID) -> Optional[SubcontractorOutreach]:
         """Get an outreach record by ID"""
@@ -89,12 +111,18 @@ class SubcontractorOutreachService:
     def delete_outreach(self, outreach_id: UUID) -> bool:
         """Delete an outreach record"""
         outreach = self.get_outreach(outreach_id)
-        
+
         if not outreach:
             return False
-        
+
+        subcontractor_id = outreach.subcontractor_id
+
         self.db.delete(outreach)
         self.db.commit()
+
+        # Update contractor usage count after deletion
+        self._update_subcontractor_usage_count(subcontractor_id)
+
         return True
     
     def get_outreach_statistics(

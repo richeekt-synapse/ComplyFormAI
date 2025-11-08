@@ -21,6 +21,7 @@ class SubcontractorDirectory(Base):
     location_city = Column(String(100))
     rating = Column(Numeric(3, 2), default=0.0)
     projects_completed = Column(Integer, default=0)
+    contractors_using_count = Column(Integer, default=0)  # Network effect: how many contractors use this sub
     is_verified = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     

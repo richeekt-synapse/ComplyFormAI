@@ -16,6 +16,7 @@ class SubcontractorDirectoryBase(BaseModel):
     location_city: Optional[str] = None
     rating: Optional[Decimal] = 0.0
     projects_completed: Optional[int] = 0
+    contractors_using_count: Optional[int] = 0
     is_verified: Optional[bool] = False
 
     @field_serializer('rating')
@@ -38,6 +39,7 @@ class SubcontractorDirectoryUpdate(BaseModel):
     location_city: Optional[str] = None
     rating: Optional[Decimal] = None
     projects_completed: Optional[int] = None
+    contractors_using_count: Optional[int] = None
     is_verified: Optional[bool] = None
 
 class SubcontractorDirectory(SubcontractorDirectoryBase):

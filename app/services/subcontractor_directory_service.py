@@ -157,18 +157,18 @@ class SubcontractorDirectoryService:
     ) -> List[SubcontractorDirectory]:
         """Find subcontractors matching specific criteria for an opportunity"""
         query = self.db.query(SubcontractorDirectory)
-        
+
         # Match NAICS codes
         if naics_codes:
             query = query.filter(
                 SubcontractorDirectory.naics_codes.overlap(naics_codes)
             )
-        
+
         # Match jurisdiction
         query = query.filter(
             SubcontractorDirectory.jurisdiction_codes.contains([jurisdiction_code])
         )
-        
+
         # Match certifications
         if is_mbe:
             query = query.filter(
@@ -179,11 +179,51 @@ class SubcontractorDirectoryService:
             query = query.filter(
                 SubcontractorDirectory.certifications['vsbe'].astext.cast(Boolean) == True
             )
-        
+
         # Filter by rating
         query = query.filter(SubcontractorDirectory.rating >= min_rating)
-        
+
         # Order by rating
         query = query.order_by(SubcontractorDirectory.rating.desc())
-        
+
         return query.all()
+
+    def calculate_contractor_usage_count(self, subcontractor_id: UUID) -> int:
+        """Calculate how many unique contractors have used this subcontractor"""
+        from app.models import SubcontractorOutreach
+
+        count = self.db.query(func.count(func.distinct(SubcontractorOutreach.organization_id)))\
+            .filter(SubcontractorOutreach.subcontractor_id == subcontractor_id)\
+            .scalar()
+
+        return count or 0
+
+    def update_contractor_usage_count(self, subcontractor_id: UUID) -> Optional[SubcontractorDirectory]:
+        """Update the cached contractor usage count for a subcontractor"""
+        subcontractor = self.get_subcontractor(subcontractor_id)
+
+        if not subcontractor:
+            return None
+
+        count = self.calculate_contractor_usage_count(subcontractor_id)
+        subcontractor.contractors_using_count = count
+
+        self.db.commit()
+        self.db.refresh(subcontractor)
+        return subcontractor
+
+    def update_all_contractor_usage_counts(self) -> int:
+        """Update contractor usage counts for all subcontractors in the directory"""
+        from app.models import SubcontractorOutreach
+
+        # Get all subcontractors
+        all_subs = self.db.query(SubcontractorDirectory).all()
+        updated_count = 0
+
+        for sub in all_subs:
+            count = self.calculate_contractor_usage_count(sub.id)
+            sub.contractors_using_count = count
+            updated_count += 1
+
+        self.db.commit()
+        return updated_count
