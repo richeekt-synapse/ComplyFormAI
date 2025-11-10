@@ -1,37 +1,47 @@
-"""Test database connection"""
-import os
 from sqlalchemy import create_engine, text
 
-# Get database URL from environment or use default
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:admin@localhost:5432/ComplyFormAI"
-)
+# CORRECT connection string from Supabase
+connection_url = "postgresql://postgres.lfizixmiqrspdskubdyj:sgnAdmin11%24%24@aws-1-us-east-1.pooler.supabase.com:5432/postgres"
 
-print(f"Testing connection to: {DATABASE_URL}")
+print("="*70)
+print("Testing CORRECT Supabase Session Pooler Connection")
+print("="*70)
 
 try:
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(connection_url, pool_pre_ping=True)
+    
     with engine.connect() as conn:
         result = conn.execute(text("SELECT version();"))
-        version = result.fetchone()
-        print("✓ Connection successful!")
-        print(f"PostgreSQL version: {version[0]}")
+        version = result.fetchone()[0]
         
-        # Test if tables exist
-        result = conn.execute(text(
-            "SELECT table_name FROM information_schema.tables "
-            "WHERE table_schema = 'public';"
-        ))
-        tables = result.fetchall()
-        print(f"\nFound {len(tables)} tables:")
-        for table in tables:
-            print(f"  - {table[0]}")
-            
+        print("✅ ✅ ✅ CONNECTION SUCCESSFUL! ✅ ✅ ✅")
+        print(f"\nPostgreSQL: {version[:80]}...")
+        
+        # Count tables
+        result = conn.execute(text("""
+            SELECT COUNT(*) 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public'
+        """))
+        count = result.fetchone()[0]
+        print(f"\n📊 Tables in database: {count}")
+        
+        if count > 0:
+            result = conn.execute(text("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public'
+                ORDER BY table_name
+                LIMIT 10
+            """))
+            tables = [row[0] for row in result.fetchall()]
+            print(f"\nFirst 10 tables:")
+            for table in tables:
+                print(f"  ✓ {table}")
+        
+        print(f"\n{'='*70}")
+        print("🎉 Your Supabase database is connected and working!")
+        print(f"{'='*70}\n")
+        
 except Exception as e:
-    print(f"✗ Connection failed: {e}")
-    print("\nPlease check:")
-    print("1. PostgreSQL is running")
-    print("2. Database 'complyform' exists")
-    print("3. Username and password are correct")
-    print("4. Host and port are correct")
+    print(f"❌ Connection failed: {str(e)}")

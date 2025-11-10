@@ -5,13 +5,32 @@ from app.validation.rules import ALL_RULES
 from uuid import UUID
 
 class ValidationEngine:
-    """Engine to run all validation rules on a bid"""
-    
+    """
+    Engine to run all validation rules on a bid
+
+    Validation flow (all verified from directory DB):
+    1. Check directory DB for jurisdiction matching
+    2. Check certifications from directory DB
+    3. Count amounts only for MBE/VSBE/DBE percentages (verified from directory DB)
+
+    NOTE: NAICS code validation is disabled
+    """
+
     def __init__(self, db: Session):
         self.db = db
-    
+
     def validate_bid(self, bid_id: UUID) -> List[ValidationResult]:
-        """Run all validation rules on a bid"""
+        """
+        Run all validation rules on a bid
+
+        The validation checks (all from directory DB):
+        - Directory DB jurisdiction match (first)
+        - Certifications from directory DB
+        - Compliance rules from jurisdiction (verified with directory DB)
+        - Amount counting for percentage calculations (verified from directory DB)
+
+        NOTE: NAICS code validation is disabled
+        """
         
         # Get the bid with all relationships
         bid = self.db.query(Bid).filter(Bid.id == bid_id).first()

@@ -53,7 +53,7 @@ def add_subcontractor_to_bid(
 ):
     """Add a subcontractor to a bid"""
     service = BidService(db)
-    
+
     # Check if bid exists
     bid = service.get_bid(bid_id)
     if not bid:
@@ -61,7 +61,14 @@ def add_subcontractor_to_bid(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Bid {bid_id} not found"
         )
-    
+
+    # Check if subcontractor exists
+    if not service.subcontractor_exists(subcontractor.subcontractor_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Subcontractor {subcontractor.subcontractor_id} not found"
+        )
+
     return service.add_subcontractor_to_bid(bid_id, subcontractor)
 
 @router.delete("/{bid_id}/subcontractors/{bid_subcontractor_id}")
