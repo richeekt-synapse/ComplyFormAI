@@ -12,9 +12,9 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: ENVIRONMENT
-        value: production
-      - key: DATABASE_URL_PRODUCTION
-        sync: false
+        value: development
+      - key: DATABASE_URL_LOCAL
+        sync: false  # Set in dashboard for security
       - key: DEBUG
         value: false
       - key: PYTHON_VERSION
