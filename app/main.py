@@ -13,6 +13,7 @@ from app.routes import (
     outreach_router,
     compliance_rules_router
 )
+from app.routes.redaction import router as redaction_router
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -49,6 +50,7 @@ app.include_router(directory_router, prefix=settings.API_V1_PREFIX)
 app.include_router(opportunities_router, prefix=settings.API_V1_PREFIX)
 app.include_router(assessments_router, prefix=settings.API_V1_PREFIX)
 app.include_router(outreach_router, prefix=settings.API_V1_PREFIX)
+app.include_router(redaction_router, prefix=settings.API_V1_PREFIX)
 
 @app.get("/")
 def root():
@@ -62,7 +64,8 @@ def root():
             "Multi-jurisdiction support",
             "Subcontractor directory & matching",
             "Opportunity alerts",
-            "Outreach tracking"
+            "Outreach tracking",
+            "FOIA-compliant document redaction (demo)"
         ],
         "docs": "/docs",
         "health": "/health"

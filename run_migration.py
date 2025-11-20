@@ -1,10 +1,7 @@
 """
 Migration script to add contractors_using_count column to subcontractor_directory table
 """
-try:
-    import psycopg2
-except ImportError:
-    import psycopg2 as psycopg2  # psycopg2-binary
+import psycopg
 
 from app.config import settings
 
@@ -17,7 +14,7 @@ def run_migration():
     # Connect to the database
     try:
         print("Connecting to database...")
-        conn = psycopg2.connect(db_url)
+        conn = psycopg.connect(db_url)
         cursor = conn.cursor()
 
         print("Running migration: Adding contractors_using_count column...")

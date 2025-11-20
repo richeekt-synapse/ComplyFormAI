@@ -4,7 +4,7 @@ Migration script to add category_breakdown column to bid_subcontractors table
 import os
 import sys
 from dotenv import load_dotenv
-import psycopg2
+import psycopg
 
 # Set UTF-8 encoding for print
 sys.stdout.reconfigure(encoding='utf-8') if hasattr(sys.stdout, 'reconfigure') else None
@@ -24,8 +24,7 @@ print(f"URL: {database_url[:50]}...")  # Show only first 50 chars for security
 
 try:
     # Connect to the database using connection string
-    conn = psycopg2.connect(database_url)
-    conn.autocommit = False
+    conn = psycopg.connect(database_url, autocommit=False)
     cursor = conn.cursor()
 
     print("\nRunning migration...")
@@ -74,7 +73,7 @@ try:
 
     print("\nAll done! The database has been updated successfully.")
 
-except psycopg2.Error as e:
+except psycopg.Error as e:
     print(f"\nDatabase error: {e}")
     try:
         if 'conn' in locals():

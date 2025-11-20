@@ -1,25 +1,26 @@
 # ComplyFormAI Backend Requirements
 # Install with: pip install -r requirements.txt
+# Python 3.13 compatible versions
 
 # Core Framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.12
 
 # Database
-sqlalchemy==2.0.23
-psycopg2-binary==2.9.9
-alembic==1.12.1
+sqlalchemy==2.0.36
+psycopg[binary]==3.2.3
+alembic==1.13.3
 
 # Data Validation
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic==2.10.3
+pydantic-settings==2.6.1
 
 # Testing & Development
-requests==2.31.0
-pytest==7.4.3
-httpx==0.25.2
+requests==2.32.3
+pytest==8.3.4
+httpx==0.27.2
 
 # Utilities
-python-dateutil==2.8.2
-python-dotenv==1.0.0
+python-dateutil==2.9.0
+python-dotenv==1.0.1
